@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dr. Ahmed Raza Clinic — Patient Data Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">➕</div>
+      <span class="brand-name">Dr. Raza Portal</span>
+    </div>
+    
+    <nav class="sidebar-menu">
+      <a href="#" class="menu-item active">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        Patient Database
+      </a>
+      <a href="index.html" class="menu-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        Clinic Website
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="doctor-profile">
+        <div class="doctor-avatar">AR</div>
+        <div class="doctor-info">
+          <span class="doctor-name" id="doc-email-display">dr.raza@example.com</span>
+          <span class="doctor-role">General Physician</span>
+        </div>
+      </div>
+      <button class="btn-logout" id="btn-logout-trigger">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <div class="main-wrapper">
+    <header class="header">
+      <h1 class="page-title">Patient Records</h1>
+      <div class="header-actions">
+        <button class="btn-primary" id="btn-add-patient-trigger">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Add New Patient
+        </button>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- Search and Filters -->
+      <div class="filter-bar">
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="search-patients" placeholder="Search by name, diagnosis, or phone...">
+        </div>
+        <select class="filter-select" id="filter-gender">
+          <option value="">All Genders</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <!-- Patients Table Card -->
+      <div class="table-card">
+        <div id="loading-spinner" style="text-align: center; padding: 3rem; display: block;">
+          <p style="font-weight: 500; color: #718096;">Loading patient records...</p>
+        </div>
+
+        <table class="patient-table" id="patients-table" style="display: none;">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Age</th>
+              <th>Gender</th>
+              <th>Phone</th>
+              <th>Diagnosis</th>
+              <th>Visit Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="patients-table-body">
+            <!-- Dynamically populated rows -->
+          </tbody>
+        </table>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="patients-empty-state" style="display: none;">
+          <div class="empty-icon">📂</div>
+          <h3 class="empty-title">No Patients Found</h3>
+          <p class="empty-text">Click "Add New Patient" to start recording patient clinic data.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal: Patient Details (Add / Edit / View) -->
+  <div class="modal" id="patient-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title-display">Add Patient Record</h2>
+        <button class="btn-close" id="btn-modal-close">&times;</button>
+      </div>
+      <form id="patient-form">
+        <input type="hidden" id="patient-id">
+        
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="p-name">Full Name *</label>
+              <input class="form-input" type="text" id="p-name" placeholder="John Doe" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="p-phone">Phone Number</label>
+              <input class="form-input" type="tel" id="p-phone" placeholder="0312-4567890">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="p-age">Age</label>
+              <input class="form-input" type="number" id="p-age" min="0" max="150" placeholder="35">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="p-gender">Gender</label>
+              <select class="form-input" id="p-gender">
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group grid-span-2">
+              <label class="form-label" for="p-diagnosis">Diagnosis</label>
+              <input class="form-input" type="text" id="p-diagnosis" placeholder="Diabetes mellitus type 2, hypertension">
+            </div>
+            <div class="form-group grid-span-2">
+              <label class="form-label" for="p-prescription">Prescription / Medication</label>
+              <textarea class="form-input" id="p-prescription" rows="3" placeholder="Tab Glucophage 500mg (1+0+1), Tab Lipiget 10mg (0+0+1)"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="p-visit-date">Visit Date *</label>
+              <input class="form-input" type="date" id="p-visit-date" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="p-follow-up">Follow-Up Date</label>
+              <input class="form-input" type="date" id="p-follow-up">
+            </div>
+            <div class="form-group grid-span-2">
+              <label class="form-label" for="p-notes">Clinical Notes</label>
+              <textarea class="form-input" id="p-notes" rows="3" placeholder="Add custom notes (BP measurements, test results, history etc.)"></textarea>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="btn-modal-cancel">Cancel</button>
+          <button type="submit" class="btn-primary" id="btn-patient-submit">Save Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { insforge, checkSession, clearSession } from './admin.js';
+
+    // State
+    let patients = [];
+    let activeUser = null;
+
+    // DOM Elements
+    const docEmailDisplay = document.getElementById('doc-email-display');
+    const btnLogoutTrigger = document.getElementById('btn-logout-trigger');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const patientsTable = document.getElementById('patients-table');
+    const patientsTableBody = document.getElementById('patients-table-body');
+    const patientsEmptyState = document.getElementById('patients-empty-state');
+    
+    const searchInput = document.getElementById('search-patients');
+    const filterGender = document.getElementById('filter-gender');
+
+    const btnAddPatientTrigger = document.getElementById('btn-add-patient-trigger');
+    const patientModal = document.getElementById('patient-modal');
+    const modalTitleDisplay = document.getElementById('modal-title-display');
+    const btnModalClose = document.getElementById('btn-modal-close');
+    const btnModalCancel = document.getElementById('btn-modal-cancel');
+    const patientForm = document.getElementById('patient-form');
+
+    // Page Init & Session Validation
+    window.addEventListener('DOMContentLoaded', async () => {
+      activeUser = await checkSession(true, 'admin-login.html');
+      if (activeUser) {
+        docEmailDisplay.textContent = activeUser.email;
+        loadPatients();
+      }
+    });
+
+    // Sign Out
+    btnLogoutTrigger.addEventListener('click', async () => {
+      await insforge.auth.signOut();
+      clearSession();
+      window.location.href = 'admin-login.html';
+    });
+
+    // Load Patient list
+    async function loadPatients() {
+      showLoading(true);
+      try {
+        const { data, error } = await insforge.database
+          .from('patients')
+          .select()
+          .order('visit_date', { ascending: false });
+
+        if (error) throw error;
+        patients = data || [];
+        renderPatients(patients);
+      } catch (err) {
+        console.error("Failed to load patients:", err);
+        alert("Failed to load patient records. Check console for details.");
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function showLoading(show) {
+      if (show) {
+        loadingSpinner.style.display = 'block';
+        patientsTable.style.display = 'none';
+        patientsEmptyState.style.display = 'none';
+      } else {
+        loadingSpinner.style.display = 'none';
+      }
+    }
+
+    // Render patients to table
+    function renderPatients(list) {
+      patientsTableBody.innerHTML = '';
+      
+      if (list.length === 0) {
+        patientsTable.style.display = 'none';
+        patientsEmptyState.style.display = 'block';
+        return;
+      }
+
+      patientsTable.style.display = 'table';
+      patientsEmptyState.style.display = 'none';
+
+      list.forEach(p => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="patient-name-col">${escapeHtml(p.name)}</td>
+          <td>${p.age || '—'}</td>
+          <td>
+            <span class="badge-gender ${p.gender || ''}">${p.gender || '—'}</span>
+          </td>
+          <td>${escapeHtml(p.phone) || '—'}</td>
+          <td>${escapeHtml(p.diagnosis) || '—'}</td>
+          <td>${formatDate(p.visit_date)}</td>
+          <td>
+            <div class="action-btns">
+              <button class="btn-icon edit" data-id="${p.id}" title="Edit Record">✏️</button>
+              <button class="btn-icon delete" data-id="${p.id}" title="Delete Record">🗑️</button>
+            </div>
+          </td>
+        `;
+        patientsTableBody.appendChild(row);
+      });
+
+      // Hook click events on action buttons
+      document.querySelectorAll('.btn-icon.edit').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.target.getAttribute('data-id');
+          openEditModal(id);
+        });
+      });
+
+      document.querySelectorAll('.btn-icon.delete').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.target.getAttribute('data-id');
+          deletePatient(id);
+        });
+      });
+    }
+
+    // Utility to format Date
+    function formatDate(dateStr) {
+      if (!dateStr) return '—';
+      const options = { year: 'numeric', month: 'short', day: 'numeric' };
+      return new Date(dateStr).toLocaleDateString(undefined, options);
+    }
+
+    // Escape HTML to prevent XSS
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+    }
+
+    // Search and Filter trigger
+    function handleSearchFilter() {
+      const query = searchInput.value.toLowerCase().trim();
+      const gender = filterGender.value;
+
+      const filtered = patients.filter(p => {
+        const matchesQuery = !query || 
+                             p.name.toLowerCase().includes(query) || 
+                             (p.diagnosis && p.diagnosis.toLowerCase().includes(query)) ||
+                             (p.phone && p.phone.includes(query));
+        const matchesGender = !gender || p.gender === gender;
+
+        return matchesQuery && matchesGender;
+      });
+
+      renderPatients(filtered);
+    }
+
+    searchInput.addEventListener('input', handleSearchFilter);
+    filterGender.addEventListener('change', handleSearchFilter);
+
+    // Modal Control: Open Add Modal
+    btnAddPatientTrigger.addEventListener('click', () => {
+      patientForm.reset();
+      document.getElementById('patient-id').value = '';
+      document.getElementById('p-visit-date').value = new Date().toISOString().split('T')[0];
+      modalTitleDisplay.textContent = 'Add Patient Record';
+      patientModal.style.display = 'flex';
+    });
+
+    // Close Modal
+    function closeModal() {
+      patientModal.style.display = 'none';
+      patientForm.reset();
+    }
+
+    btnModalClose.addEventListener('click', closeModal);
+    btnModalCancel.addEventListener('click', closeModal);
+    window.addEventListener('click', (e) => {
+      if (e.target === patientModal) {
+        closeModal();
+      }
+    });
+
+    // Modal Control: Open Edit Modal
+    function openEditModal(id) {
+      const p = patients.find(pat => pat.id === id);
+      if (!p) return;
+
+      document.getElementById('patient-id').value = p.id;
+      document.getElementById('p-name').value = p.name;
+      document.getElementById('p-phone').value = p.phone || '';
+      document.getElementById('p-age').value = p.age || '';
+      document.getElementById('p-gender').value = p.gender || '';
+      document.getElementById('p-diagnosis').value = p.diagnosis || '';
+      document.getElementById('p-prescription').value = p.prescription || '';
+      document.getElementById('p-visit-date').value = p.visit_date ? p.visit_date.split('T')[0] : '';
+      document.getElementById('p-follow-up').value = p.follow_up ? p.follow_up.split('T')[0] : '';
+      document.getElementById('p-notes').value = p.notes || '';
+
+      modalTitleDisplay.textContent = 'Edit Patient Record';
+      patientModal.style.display = 'flex';
+    }
+
+    // Submit Add/Edit Patient Form
+    patientForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const id = document.getElementById('patient-id').value;
+      const values = {
+        name: document.getElementById('p-name').value.trim(),
+        phone: document.getElementById('p-phone').value.trim() || null,
+        age: parseInt(document.getElementById('p-age').value) || null,
+        gender: document.getElementById('p-gender').value || null,
+        diagnosis: document.getElementById('p-diagnosis').value.trim() || null,
+        prescription: document.getElementById('p-prescription').value.trim() || null,
+        visit_date: document.getElementById('p-visit-date').value,
+        follow_up: document.getElementById('p-follow-up').value || null,
+        notes: document.getElementById('p-notes').value.trim() || null
+      };
+
+      const submitBtn = document.getElementById('btn-patient-submit');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Saving...';
+
+      try {
+        if (id) {
+          // Update
+          const { error } = await insforge.database
+            .from('patients')
+            .update(values)
+            .eq('id', id);
+
+          if (error) throw error;
+        } else {
+          // Insert
+          const { error } = await insforge.database
+            .from('patients')
+            .insert([values]);
+
+          if (error) throw error;
+        }
+
+        closeModal();
+        loadPatients();
+      } catch (err) {
+        console.error("Failed to save patient:", err);
+        alert("Failed to save patient record. Check console for details.");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Save Record';
+      }
+    });
+
+    // Delete Patient Record
+    async function deletePatient(id) {
+      const p = patients.find(pat => pat.id === id);
+      if (!p) return;
+
+      if (confirm(`Are you sure you want to delete the clinical record for ${p.name}?`)) {
+        try {
+          const { error } = await insforge.database
+            .from('patients')
+            .delete()
+            .eq('id', id);
+
+          if (error) throw error;
+          loadPatients();
+        } catch (err) {
+          console.error("Failed to delete patient:", err);
+          alert("Failed to delete patient record. Check console for details.");
+        }
+      }
+    }
+  </script>
+</body>
+</html>
