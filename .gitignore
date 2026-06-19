@@ -1,4 +1,9 @@
 
+# Environment variables (NEVER commit these!)
+.env.local
+.env
+.env.*
+
 # InsForge & AI agent skills
 .insforge
 .agent
